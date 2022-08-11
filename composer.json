@@ -1,0 +1,20 @@
+{
+    "name": "ospina/apitter",
+    "description": "PHP class for using the new twitter API in an extremely easy and fast way",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Ospina\\Apitter\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sebastian Ospina",
+            "email": "sebastianospinacontacto@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "ospina/curlcobain": "^1.0"
+    }
+}

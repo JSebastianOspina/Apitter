@@ -1,0 +1,48 @@
+{
+    "packages": [
+        {
+            "name": "ospina/curlcobain",
+            "version": "1.0.1",
+            "version_normalized": "1.0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JSebastianOspina/CurlCobain.git",
+                "reference": "c8e4cddf8188e881983051670046bafba46d2360"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JSebastianOspina/CurlCobain/zipball/c8e4cddf8188e881983051670046bafba46d2360",
+                "reference": "c8e4cddf8188e881983051670046bafba46d2360",
+                "shasum": ""
+            },
+            "time": "2022-08-11T04:03:02+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Ospina\\CurlCobain\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Ospina",
+                    "email": "sebastianospinacontacto@gmail.com"
+                }
+            ],
+            "description": "Easy Curl for everybody, forget about manual long curl configuration",
+            "support": {
+                "issues": "https://github.com/JSebastianOspina/CurlCobain/issues",
+                "source": "https://github.com/JSebastianOspina/CurlCobain/tree/1.0.1"
+            },
+            "install-path": "../ospina/curlcobain"
+        }
+    ],
+    "dev": true,
+    "dev-package-names": [
+        "ospina/curlcobain"
+    ]
+}
