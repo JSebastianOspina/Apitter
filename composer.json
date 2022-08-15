@@ -16,5 +16,8 @@
     "minimum-stability": "stable",
     "require-dev": {
         "ospina/curlcobain": "^1.0"
-    }
+    },
+  "require": {
+    "ext-json": "*"
+  }
 }

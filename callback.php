@@ -5,12 +5,19 @@ session_start();
 $code = $_GET['code'];
 $codeChallenge = $_SESSION['code_challenge'];
 
-$clientId = 'ak52ZEJhRHR1N3BQcHdtekN6dGI6MTpjaQ';
-$clientSecret = '4EbJAHGMR9qleEKP-9wFMSYl16uydSvLw9Z74vS1W8sXtNbJEQ';
+$clientId = 'YOUR CLIENT ID';
+$clientSecret = 'YOUR SECRET';
 $redirectUrl = 'http://localhost/apitter/callback.php';
 $scopes = ['tweet.read', 'users.read', 'tweet.write', 'offline.access'];
 $apitter = new \Ospina\Apitter\Apitter($clientId, $clientSecret, $redirectUrl);
 
-$tokens = $apitter->getAccessToken($code,$codeChallenge);
+$tokens = $apitter->getAccessToken($code, $codeChallenge);
 
+//Set token required for endpoint
+$apitter->setBearerToken($tokens->access_token);
+$info = $apitter->me();
+
+$rt = $apitter->unRT($info->id, '1558126768204177412');
+print_r($rt);
+print_r($info);
 print_r($tokens);

@@ -11,6 +11,8 @@ class Apitter
     private string $clientId;
     private string $clientSecret;
     private string $callbackUrl;
+    private string $bearerToken;
+    private string $baseUrl = 'https://api.twitter.com/2';
 
     /**
      * @param string $clientId
@@ -64,7 +66,7 @@ class Apitter
     /**
      * @throws JsonException
      */
-    public function getAccessToken(string $authorizationCode,string $codeChallenge)
+    public function getAccessToken(string $authorizationCode, string $codeChallenge)
     {
         $oauth2Url = 'https://api.twitter.com/2/oauth2/token';
 
@@ -92,5 +94,68 @@ class Apitter
         $response = $curl->makeRequest();
         return json_decode($response, false, 512, JSON_THROW_ON_ERROR);
     }
+
+    public function setBearerToken(string $bearer): void
+    {
+        $this->bearerToken = $bearer;
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function userLookupMe()
+    {
+        return $this->me();
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function me()
+    {
+        $endpoint = 'users/me';
+        return $this->makeAuthorizedRequest($endpoint, 'GET')->data;
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function makeAuthorizedRequest($endpoint, $method, $params = null)
+    {
+        if ($this->bearerToken === '') {
+            throw new \RuntimeException('You must provide a valid bearer token');
+        }
+        $curl = new CurlCobain("$this->baseUrl/$endpoint", $method);
+        if ($params !== null) {
+            $curl->setDataAsJson($params);
+        }
+        $curl->setHeader('Authorization', 'Bearer ' . $this->bearerToken);
+
+        $response = $curl->makeRequest();
+        return json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function RT($userId, $tweetId)
+    {
+        $endpoint = "/users/$userId/retweets";
+        $data = [
+            'tweet_id' => $tweetId
+        ];
+        return $this->makeAuthorizedRequest($endpoint, 'POST', $data)->data;
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function unRT($userId, $tweetId)
+    {
+        $endpoint = "users/$userId/retweets/$tweetId";
+        return $this->makeAuthorizedRequest($endpoint, 'DELETE');
+    }
+
 
 }
