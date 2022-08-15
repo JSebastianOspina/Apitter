@@ -138,7 +138,7 @@ class Apitter
         if ($params !== null) {
             $curl->setDataAsJson($params);
         }
-        if ($params !== null) {
+        if ($query !== null) {
             $curl->setQueryParamsAsArray($query);
         }
         $curl->setHeader('Authorization', 'Bearer ' . $this->bearerToken);
