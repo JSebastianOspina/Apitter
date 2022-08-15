@@ -97,7 +97,7 @@ class Apitter
         $responseObject = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         //if it has error throw exception
         if ($curl->getStatusCode() !== 200) {
-            throw new TwitterException($responseObject,$curl->getStatusCode());
+            throw new TwitterException($responseObject, $curl->getStatusCode());
         }
 
         return $responseObject;
@@ -129,7 +129,7 @@ class Apitter
      * @throws JsonException
      * @throws TwitterException
      */
-    public function makeAuthorizedRequest($endpoint, $method, $params = null)
+    public function makeAuthorizedRequest($endpoint, $method, $params = null, $query = null)
     {
         if ($this->bearerToken === '') {
             throw new \RuntimeException('You must provide a valid bearer token');
@@ -138,6 +138,9 @@ class Apitter
         if ($params !== null) {
             $curl->setDataAsJson($params);
         }
+        if ($params !== null) {
+            $curl->setQueryParamsAsArray($query);
+        }
         $curl->setHeader('Authorization', 'Bearer ' . $this->bearerToken);
 
         $response = $curl->makeRequest();
@@ -145,7 +148,7 @@ class Apitter
         $responseObject = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         //if it has error throw exception
         if ($curl->getStatusCode() !== 200) {
-            throw new TwitterException($responseObject,$curl->getStatusCode());
+            throw new TwitterException($responseObject, $curl->getStatusCode());
         }
 
         return $responseObject;
@@ -154,6 +157,7 @@ class Apitter
 
     /**
      * @throws JsonException
+     * @throws TwitterException
      */
     public function RT($userId, $tweetId)
     {
@@ -166,6 +170,7 @@ class Apitter
 
     /**
      * @throws JsonException
+     * @throws TwitterException
      */
     public function unRT($userId, $tweetId)
     {
