@@ -8,7 +8,6 @@ $codeChallenge = $_SESSION['code_challenge'];
 $clientId = 'YOUR CLIENT ID';
 $clientSecret = 'YOUR SECRET';
 $redirectUrl = 'http://localhost/apitter/callback.php';
-$scopes = ['tweet.read', 'users.read', 'tweet.write', 'offline.access'];
 $apitter = new \Ospina\Apitter\Apitter($clientId, $clientSecret, $redirectUrl);
 
 $tokens = $apitter->getAccessToken($code, $codeChallenge);

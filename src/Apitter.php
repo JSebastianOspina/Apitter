@@ -65,6 +65,7 @@ class Apitter
 
     /**
      * @throws JsonException
+     * @throws TwitterException
      */
     public function getAccessToken(string $authorizationCode, string $codeChallenge)
     {
@@ -92,7 +93,14 @@ class Apitter
         $curl->setDataAsFormUrlEncoded($fields);
 
         $response = $curl->makeRequest();
-        return json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+
+        $responseObject = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        //if it has error throw exception
+        if ($curl->getStatusCode() !== 200) {
+            throw new TwitterException($responseObject,$curl->getStatusCode());
+        }
+
+        return $responseObject;
     }
 
     public function setBearerToken(string $bearer): void
