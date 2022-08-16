@@ -161,7 +161,7 @@ class Apitter
      */
     public function RT($userId, $tweetId)
     {
-        $endpoint = "/users/$userId/retweets";
+        $endpoint = "users/$userId/retweets";
         $data = [
             'tweet_id' => $tweetId
         ];
