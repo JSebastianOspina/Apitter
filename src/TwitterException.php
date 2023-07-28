@@ -23,7 +23,14 @@ class TwitterException extends \Exception
         if (isset($this->errorObject->error)) {
             return $this->errorObject->error;
         }
-        return 'No error detected';
+        try {
+            return json_encode($this->errorObject, JSON_THROW_ON_ERROR);
+        }
+        catch (\JsonException $e) {
+            return 'No error name detected';
+        }
+
+
     }
     public function getErrorDescription(): string
     {
