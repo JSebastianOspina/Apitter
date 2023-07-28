@@ -19,7 +19,7 @@ class Apitter
      * @param string $clientSecret
      * @param string $callbackUrl
      */
-    public function __construct(string $clientId, string $clientSecret, string $callbackUrl)
+    public function __construct(string $clientId, string $clientSecret, string $callbackUrl = null)
     {
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
@@ -70,19 +70,6 @@ class Apitter
     public function getAccessToken(string $authorizationCode, string $codeChallenge)
     {
         $oauth2Url = 'https://api.twitter.com/2/oauth2/token';
-
-        //Create curl object
-        $curl = new CurlCobain($oauth2Url, 'POST');
-        //prepare auth format
-        $password = $this->clientId . ":" . $this->clientSecret;
-        $auth = base64_encode($password);
-        //set it
-        $curl->setHeadersAsArray(
-            [
-                "Authorization" => "Basic $auth"
-            ]
-        );
-        //required fields
         $fields = [
             'grant_type' => 'authorization_code',
             'code_verifier' => $codeChallenge,
@@ -90,7 +77,20 @@ class Apitter
             'client_id' => $this->clientId,
             'code' => $authorizationCode,
         ];
-        $curl->setDataAsFormUrlEncoded($fields);
+        return $this->makeBasicAuthRequest($oauth2Url, 'POST', $fields);
+    }
+
+    /**
+     * @throws TwitterException
+     * @throws JsonException
+     */
+    private function makeBasicAuthRequest($endpoint, $method, $params = null)
+    {
+        $curl = new CurlCobain($endpoint, $method);
+        $curl->setHeadersAsArray($this->getBasicAuthHeaders());
+        if ($params !== null) {
+            $curl->setDataAsFormUrlEncoded($params);
+        }
 
         $response = $curl->makeRequest();
 
@@ -101,6 +101,15 @@ class Apitter
         }
 
         return $responseObject;
+    }
+
+    private function getBasicAuthHeaders()
+    {
+        $password = $this->clientId . ":" . $this->clientSecret;
+        $auth = base64_encode($password);
+        return [
+            "Authorization" => "Basic $auth"
+        ];
     }
 
     public function setBearerToken(string $bearer): void
@@ -147,6 +156,10 @@ class Apitter
 
         $responseObject = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         //if it has error throw exception
+        if ($curl->getStatusCode() === 401) {
+            throw new UnauthenticatedTwitterException($responseObject, $curl->getStatusCode());
+        }
+
         if ($curl->getStatusCode() !== 200) {
             throw new TwitterException($responseObject, $curl->getStatusCode());
         }
@@ -166,6 +179,16 @@ class Apitter
             'tweet_id' => $tweetId
         ];
         return $this->makeAuthorizedRequest($endpoint, 'POST', $data)->data;
+    }
+
+    public function extendBearerToken(string $refreshToken)
+    {
+        $endpoint = "https://api.twitter.com/2/oauth2/token";
+        $data = [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $this->bearerToken
+        ];
+        return $this->makeBasicAuthRequest($endpoint, 'POST', $data);
     }
 
     /**
