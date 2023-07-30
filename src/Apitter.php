@@ -6,12 +6,30 @@ use Exception;
 use JsonException;
 use Ospina\CurlCobain\CurlCobain;
 
+/**
+ *
+ */
 class Apitter
 {
+    /**
+     * @var string
+     */
     private string $clientId;
+    /**
+     * @var string
+     */
     private string $clientSecret;
+    /**
+     * @var string
+     */
     private string $callbackUrl;
+    /**
+     * @var string
+     */
     private string $bearerToken;
+    /**
+     * @var string
+     */
     private string $baseUrl = 'https://api.twitter.com/2';
 
     /**
@@ -19,7 +37,7 @@ class Apitter
      * @param string $clientSecret
      * @param string $callbackUrl
      */
-    public function __construct(string $clientId, string $clientSecret, string $callbackUrl = null)
+    public function __construct(string $clientId, string $clientSecret, string $callbackUrl = '')
     {
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
@@ -81,8 +99,12 @@ class Apitter
     }
 
     /**
-     * @throws TwitterException
+     * @param $endpoint
+     * @param $method
+     * @param $params
+     * @return mixed
      * @throws JsonException
+     * @throws TwitterException
      */
     private function makeBasicAuthRequest($endpoint, $method, $params = null)
     {
@@ -96,13 +118,14 @@ class Apitter
 
         $responseObject = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         //if it has error throw exception
-        if ($curl->getStatusCode() !== 200) {
-            throw new TwitterException($responseObject, $curl->getStatusCode());
-        }
+        $this->throwException($responseObject, $curl->getStatusCode());
 
         return $responseObject;
     }
 
+    /**
+     * @return string[]
+     */
     private function getBasicAuthHeaders()
     {
         $password = $this->clientId . ":" . $this->clientSecret;
@@ -112,6 +135,19 @@ class Apitter
         ];
     }
 
+    public function throwException($responseObject, int $status): void
+    {
+        if ($status === 401) {
+            throw new UnauthenticatedTwitterException($responseObject, $status);
+        } elseif ($status !== 200) {
+            throw new TwitterException($responseObject, $status);
+        }
+    }
+
+    /**
+     * @param string $bearer
+     * @return void
+     */
     public function setBearerToken(string $bearer): void
     {
         $this->bearerToken = $bearer;
@@ -158,9 +194,7 @@ class Apitter
         //if it has error throw exception
         if ($curl->getStatusCode() === 401) {
             throw new UnauthenticatedTwitterException($responseObject, $curl->getStatusCode());
-        }
-
-        if ($curl->getStatusCode() !== 200) {
+        } elseif ($curl->getStatusCode() !== 200) {
             throw new TwitterException($responseObject, $curl->getStatusCode());
         }
 
@@ -181,14 +215,21 @@ class Apitter
         return $this->makeAuthorizedRequest($endpoint, 'POST', $data)->data;
     }
 
+    /**
+     * @param string $refreshToken
+     * @return mixed |null
+     * @throws JsonException
+     * @throws TwitterException
+     */
     public function extendBearerToken(string $refreshToken)
     {
         $endpoint = "https://api.twitter.com/2/oauth2/token";
         $data = [
             'grant_type' => 'refresh_token',
-            'refresh_token' => $this->bearerToken
+            'refresh_token' => $refreshToken
         ];
-        return $this->makeBasicAuthRequest($endpoint, 'POST', $data);
+        $request = $this->makeBasicAuthRequest($endpoint, 'POST', $data);
+        return $request;
     }
 
     /**
