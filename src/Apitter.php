@@ -194,7 +194,13 @@ class Apitter
         //if it has error throw exception
         if ($curl->getStatusCode() === 401) {
             throw new UnauthenticatedTwitterException($responseObject, $curl->getStatusCode());
-        } elseif ($curl->getStatusCode() !== 200) {
+        }
+
+        if ($curl->getStatusCode() === 429) {
+            throw new UnauthenticatedTwitterException($responseObject, $curl->getStatusCode());
+        }
+
+        if ($curl->getStatusCode() !== 200) {
             throw new TwitterException($responseObject, $curl->getStatusCode());
         }
 
