@@ -197,7 +197,7 @@ class Apitter
         }
 
         if ($curl->getStatusCode() === 429) {
-            throw new UnauthenticatedTwitterException($responseObject, $curl->getStatusCode());
+            throw new TooManyRequestException($responseObject, $curl->getStatusCode());
         }
 
         if ($curl->getStatusCode() !== 200) {
